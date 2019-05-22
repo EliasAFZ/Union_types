@@ -1,0 +1,85 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-beginner-reader.ss" "lang")((modname hw03) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;Elias Afzalzada
+;HW03
+
+#|Part 1:
+; Data definition: A "game-result" is:
+;     A union type representing the current status or
+;     results of a game vs Radford University.
+;
+; Examples of the data:
+;     #true for a win condition
+;     #false for a loss condition
+;     'tie for a tie condition that nobody wins or loses
+;     'nogame for a condition that the game never happened
+;     "in progress message" for the in progress message
+|#
+
+;Part 2:
+;payout : non-negative real game-result -> non-negative real
+;Determines how much money is to be repaid based on the bet given
+(define (payout bet_amount game-result)
+      (cond [(equal? game-result #true) (win_amount bet_amount)]
+            [(equal? game-result #false) 0]
+            [(equal? game-result 'tie) (* .9 bet_amount)]
+            [(equal? game-result 'nogame) bet_amount]
+            [(string? game-result) 0]))
+
+;Win condition payout
+(check-expect (payout 0 #true) 0)
+(check-expect (payout 5 #true) 9)
+(check-expect (payout 1321 #true) 2377.8)
+;Loss condition payout
+(check-expect (payout 0 #false) 0)
+(check-expect (payout 5 #false) 0)
+(check-expect (payout 1231 #false) 0)
+;tie condition payout
+(check-expect (payout 0 'tie) 0)
+(check-expect (payout 5 'tie) 4.5)
+(check-expect (payout 1450 'tie) 1305)
+;no game condition
+(check-expect (payout 0 'nogame) 0)
+(check-expect (payout 5 'nogame) 5)
+(check-expect (payout 2000 'nogame) 2000)
+;in progress condition
+(check-expect (payout 0 "University of Virginia") 0)
+(check-expect (payout 13 "James Madison University") 0)
+(check-expect (payout 4123 "Virginia Tech") 0)
+
+
+;win_amount :  non-negative real -> non-negative real
+;Helper function for win condition to return a x2 bet amount and a 10% house cut.
+(define (win_amount bet_amount)
+  (* .9 (* 2 bet_amount)))
+
+;Helper tests
+(check-expect (win_amount 0) 0)
+(check-expect (win_amount 1) 1.8)
+(check-expect (win_amount 10) 18)
+(check-expect (win_amount 5621) 10117.8)
+
+;Part 3:
+;match_result : game-result -> string
+;Displays the result of the match in a string format
+(define (match_result game-result)
+  (cond [(equal? game-result #true) "The Radford Highlanders won!"]
+        [(equal? game-result #false) "The Radford Highlanders lost!"]
+        [(equal? game-result 'tie) "The Radford Highlanders tied their last game."]
+        [(equal? game-result 'nogame) "The Radford Highlanders did not play this week."]
+        [(string? game-result) (string-append "The Radford Highlanders are currently playing the: " game-result)])
+  )
+
+;Test cases for match result function
+(check-expect (match_result #true) "The Radford Highlanders won!")
+(check-expect (match_result #false) "The Radford Highlanders lost!")
+(check-expect (match_result 'tie) "The Radford Highlanders tied their last game.")
+(check-expect (match_result 'nogame) "The Radford Highlanders did not play this week.")
+(check-expect (match_result "") "The Radford Highlanders are currently playing the: ")
+(check-expect (match_result "Virginia Tech") "The Radford Highlanders are currently playing the: Virginia Tech")
+(check-expect (match_result "University of Virginia" ) "The Radford Highlanders are currently playing the: University of Virginia")
+
+
+
+
